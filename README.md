@@ -15,5 +15,5 @@ Uses QRCode library by Richard Moore version 0.0.1
 
 ![Alt text](Generate_Display_QRcode_ESP32_OLED_TFT/240x320_TFT_with_QRcode.jpg?raw=true "240x320 TFT")
 
-        
+![ALT test](240x320_TFT_with_QRcode.jpg?cropZoom=100,100))        
       
