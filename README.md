@@ -12,3 +12,8 @@ Default is lit background with Black QRcode. Inverse can also be displayed howev
 
 Uses QRCode library by Richard Moore version 0.0.1
         https://github.com/ricmoo/QRCode
+
+![Alt text](../Generate_Display_QRcode_ESP32_OLED_TFT/240x320 TFT with QRcode.jpg?raw=true "240x320 TFT")
+
+        
+      
