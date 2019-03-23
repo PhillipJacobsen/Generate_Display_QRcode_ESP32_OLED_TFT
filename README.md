@@ -12,9 +12,5 @@ Default is lit background with Black QRcode. Inverse can also be displayed howev
 
 Uses QRCode library by Richard Moore version 0.0.1
         https://github.com/ricmoo/QRCode
-
-
-![TFT display with QR code](240x320_TFT_with_QRcode.jpg?cropZoom=50,100))       
-![TFT display with QR code](240x320_TFT_with_QRcode.jpg){height="300px" width="300px"}.
-      
-<img src="240x320_TFT_with_QRcode.jpg" alt="Your image title" width="250"/>
+     
+<img src="240x320_TFT_with_QRcode.jpg" alt="TFT with QRcode" width="250"/>
