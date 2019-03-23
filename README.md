@@ -1,7 +1,7 @@
-# Generate_Display_QRcode_on_OLED_ESP32
+# Generate_Display_QRcode_on_OLED_ESP32_TFT
 
 Program Features:
-    This program has been tested with ESP32 Adafruit Huzzah however it should also work with ESP8266 modules with minor changes to hardward connections and wifi libraries.
+    This program has been tested with ESP32 Adafruit Huzzah however it should also work with ESP8266 modules with minor changes to hardware connections and wifi libraries.
 
 Encodes text string into a matrix representing the QR Code
  -program does not check length of text to make sure the QRcode version is able to generate it
