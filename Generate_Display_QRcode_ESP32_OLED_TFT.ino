@@ -180,7 +180,16 @@ void setup() {
   // qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "{\"a\":\"DE6os4N86ef9bba6kVGurqxmhpBHKctoxY\"}"); //dARK address
   //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "DE6os4N86ef9bba6kVGurqxmhpBHKctoxY");   //dARK address
   //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "ark:AePNZAAtWhLsGFLXtztGLAPnKm98VVC8tJ?amount=20.3");    //ARK address
-  qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "dark:DFcWwEGwBaYCNb1wxGErGN1TJu8QdQYgCt?amount=0.3");    //dARK address 51 bytes.
+  
+  //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "DFcWwEGwBaYCNb1wxGErGN1TJu8QdQYgCt?amount=0.3");    //dARK address 51 bytes.
+  //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "dark:DFcWwEGwBaYCNb1wxGErGN1TJu8QdQYgCt?amount=0.3");    //dARK address 51 bytes.
+ 
+  //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "AUjnVRstxXV4qP3wgKvBgv1yiApvbmcHhx?amount=0.3");    //jake address 51 bytes 
+  //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "AUjnVRstxXV4qP3wgKvBgv1yiApvbmcHhx");    //jake address 
+  //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "jake:AUjnVRstxXV4qP3wgKvBgv1yiApvbmcHhx?amount=0.3");    //jake address 51 bytes.
+   qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "ark:AUjnVRstxXV4qP3wgKvBgv1yiApvbmcHhx?amount=0.3");    //jake address 51 bytes.
+
+    
   //  qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "hello pj");
   //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "1BGJvqAuZvr23EixA65PEe5PMLAjVTeyMn");     //bitcoin address
 
