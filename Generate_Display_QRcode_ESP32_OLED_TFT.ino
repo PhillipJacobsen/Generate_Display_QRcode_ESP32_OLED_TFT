@@ -64,8 +64,8 @@
 ********************************************************************************/
 //select one of the following 2 screens
 //#define _128x64_OLED      // Uncomment this if you are using the 0.96 OLED display
-//#define _240x320_TFT      // Uncomment this if you are using the 2.4" TFT display with resistive touchscreen
-#define _320x480_TFT      // Uncomment this if you are using the 3.5" TFT display with resistive touchscreen
+#define _240x320_TFT      // Uncomment this if you are using the 2.4" TFT display with resistive touchscreen
+//#define _320x480_TFT      // Uncomment this if you are using the 3.5" TFT display with resistive touchscreen
 
 
 
@@ -101,9 +101,11 @@ const int QRcode_ECC = 0;       //  set the Error Correction level (range 0-3) o
 #ifdef _240x320_TFT
 //version 8 code with double sized code and starting at y0 = 2 is good
 //version 8 with ECC_LOW gives 192 "bytes".
-const int QRcode_Version = 8;   //  set the version (range 1->40)
-const int QRcode_ECC = 0;       //  set the Error Correction level (range 0-3) or symbolic (ECC_LOW, ECC_MEDIUM, ECC_QUARTILE and ECC_HIGH)
-#define _QR_doubleSize    //
+const int QRcode_Version = 10;   //  set the version (range 1->40)
+const int QRcode_ECC = 1;       //  set the Error Correction level (range 0-3) or symbolic (ECC_LOW, ECC_MEDIUM, ECC_QUARTILE and ECC_HIGH)
+//#define _QR_doubleSize    //
+#define _QR_tripleSize    //
+
 #define Lcd_X  240
 #define Lcd_Y  320
 
@@ -156,16 +158,16 @@ U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 #include <Adafruit_ILI9341.h>
 
 #ifdef ESP8266
-   #define STMPE_CS 16
-   #define TFT_CS   0
-   #define TFT_DC   15
-   #define SD_CS    2
+#define STMPE_CS 16
+#define TFT_CS   0
+#define TFT_DC   15
+#define SD_CS    2
 #endif
 #ifdef ESP32
-   #define STMPE_CS 32
-   #define TFT_CS   15
-   #define TFT_DC   33
-   #define SD_CS    14
+#define STMPE_CS 32
+#define TFT_CS   15
+#define TFT_DC   33
+#define SD_CS    14
 #endif
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
@@ -185,16 +187,16 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 #include <Adafruit_HX8357.h>
 
 #ifdef ESP8266
-   #define STMPE_CS 16
-   #define TFT_CS   0
-   #define TFT_DC   15
-   #define SD_CS    2
+#define STMPE_CS 16
+#define TFT_CS   0
+#define TFT_DC   15
+#define SD_CS    2
 #endif
 #ifdef ESP32
-   #define STMPE_CS 32
-   #define TFT_CS   15
-   #define TFT_DC   33
-   #define SD_CS    14
+#define STMPE_CS 32
+#define TFT_CS   15
+#define TFT_DC   33
+#define SD_CS    14
 #endif
 
 #define TFT_RST -1
@@ -398,8 +400,24 @@ void setup() {
         tft.drawPixel(x0 + 2 * x + 1, y0 + 2 * y, TFT_WHITE);
         tft.drawPixel(x0 + 2 * x,     y0 + 2 * y + 1, TFT_WHITE);
         tft.drawPixel(x0 + 2 * x + 1, y0 + 2 * y + 1, TFT_WHITE);
-#else
-        //uncomment to display code in normal size.  Comment to double the QRcode
+#endif    
+
+#ifdef  _QR_tripleSize
+        //uncomment to double the QRcode. Comment to display normal code size
+        tft.drawPixel(x0 + 3 * x,     y0 + 3 * y, TFT_WHITE);
+        tft.drawPixel(x0 + 3 * x + 1, y0 + 3 * y, TFT_WHITE);
+        tft.drawPixel(x0 + 3 * x + 2, y0 + 3 * y, TFT_WHITE);
+        
+        tft.drawPixel(x0 + 3 * x,     y0 + 3 * y + 1, TFT_WHITE);
+        tft.drawPixel(x0 + 3 * x + 1, y0 + 3 * y + 1, TFT_WHITE);
+        tft.drawPixel(x0 + 3 * x + 2, y0 + 3 * y + 1, TFT_WHITE);
+
+        tft.drawPixel(x0 + 3 * x,     y0 + 3 * y + 2, TFT_WHITE);
+        tft.drawPixel(x0 + 3 * x + 1, y0 + 3 * y + 2, TFT_WHITE);
+        tft.drawPixel(x0 + 3 * x + 2, y0 + 3 * y + 2, TFT_WHITE);        
+#endif  
+
+ #if !defined(_QR_doubleSize) && !defined(_QR_tripleSize)  
         tft.drawPixel(x0 + x, y0 + y, TFT_WHITE);
 #endif
 
@@ -412,10 +430,27 @@ void setup() {
         tft.drawPixel(x0 + 2 * x + 1, y0 + 2 * y, TFT_BLACK);
         tft.drawPixel(x0 + 2 * x,     y0 + 2 * y + 1, TFT_BLACK);
         tft.drawPixel(x0 + 2 * x + 1, y0 + 2 * y + 1, TFT_BLACK);
-#else
-        //uncomment to display code in normal size.  Comment to double the QRcode
+#endif
+
+#ifdef  _QR_tripleSize
+        //uncomment to double the QRcode. Comment to display normal code size
+        tft.drawPixel(x0 + 3 * x,     y0 + 3 * y, TFT_BLACK);
+        tft.drawPixel(x0 + 3 * x + 1, y0 + 3 * y, TFT_BLACK);
+        tft.drawPixel(x0 + 3 * x + 2, y0 + 3 * y, TFT_BLACK);
+        
+        tft.drawPixel(x0 + 3 * x,     y0 + 3 * y + 1, TFT_BLACK);
+        tft.drawPixel(x0 + 3 * x + 1, y0 + 3 * y + 1, TFT_BLACK);
+        tft.drawPixel(x0 + 3 * x + 2, y0 + 3 * y + 1, TFT_BLACK);
+
+        tft.drawPixel(x0 + 3 * x,     y0 + 3 * y + 2, TFT_BLACK);
+        tft.drawPixel(x0 + 3 * x + 1, y0 + 3 * y + 2, TFT_BLACK);
+        tft.drawPixel(x0 + 3 * x + 2, y0 + 3 * y + 2, TFT_BLACK);        
+#endif
+        
+ #if !defined(_QR_doubleSize) && !defined(_QR_tripleSize)  
         tft.drawPixel(x0 + x, y0 + y, TFT_BLACK);
 #endif
+
       }
 
     }
