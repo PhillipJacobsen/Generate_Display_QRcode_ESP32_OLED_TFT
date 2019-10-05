@@ -39,6 +39,20 @@
     MISO    -> MISO, pin 19
     MOSI    -> MOSI, pin 18
 
+  Use these connections if using the TFT FeatherWing 3.5" 320x480 Touchscreen
+    The TFT FeatherWing module from Adafruit is designed with headers to directly mount on the ESP32 Adafruit Huzzah.
+    No additional wiring is required for operation.
+    Requires: Adafruit HX8357 TFT Library,  Adafruit GFX Library
+      Source:   https://www.adafruit.com/product/3651
+    TFT_CS  -> pin 15
+    TFT_DC  -> pin 33
+    RT      -> pin 32
+    SD      -> pin 14
+    SCK     -> SCK, pin 5
+    MISO    -> MISO, pin 19
+    MOSI    -> MOSI, pin 18
+
+
 
   Other I/O
     LED on Huzzah board -> pin 13
@@ -50,8 +64,8 @@
 ********************************************************************************/
 //select one of the following 2 screens
 //#define _128x64_OLED      // Uncomment this if you are using the 0.96 OLED display
-#define _240x320_TFT      // Uncomment this if you are using the 2.4" TFT display
-
+#define _240x320_TFT      // Uncomment this if you are using the 2.4" TFT display with resistive touchscreen
+//#define _320x480_TFT      // Uncomment this if you are using the 3.5" TFT display with resistive touchscreen
 
 
 
@@ -87,13 +101,27 @@ const int QRcode_ECC = 0;       //  set the Error Correction level (range 0-3) o
 #ifdef _240x320_TFT
 //version 8 code with double sized code and starting at y0 = 2 is good
 //version 8 with ECC_LOW gives 192 "bytes".
-const int QRcode_Version = 8;   //  set the version (range 1->40)
-const int QRcode_ECC = 0;       //  set the Error Correction level (range 0-3) or symbolic (ECC_LOW, ECC_MEDIUM, ECC_QUARTILE and ECC_HIGH)
-#define _QR_doubleSize    //
+const int QRcode_Version = 10;   //  set the version (range 1->40)
+const int QRcode_ECC = 1;       //  set the Error Correction level (range 0-3) or symbolic (ECC_LOW, ECC_MEDIUM, ECC_QUARTILE and ECC_HIGH)
+//#define _QR_doubleSize    //
+#define _QR_tripleSize    //
+
 #define Lcd_X  240
 #define Lcd_Y  320
 
 #endif
+
+#ifdef _320x480_TFT
+//version 8 code with double sized code and starting at y0 = 2 is good
+//version 8 with ECC_LOW gives 192 "bytes".
+const int QRcode_Version = 8;   //  set the version (range 1->40)
+const int QRcode_ECC = 0;       //  set the Error Correction level (range 0-3) or symbolic (ECC_LOW, ECC_MEDIUM, ECC_QUARTILE and ECC_HIGH)
+#define _QR_doubleSize    //
+#define Lcd_X  320
+#define Lcd_Y  480
+
+#endif
+
 
 
 
@@ -124,13 +152,17 @@ U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
   GFX library available from Adafruit
   This library is used for the 240x320 TFT
     Available through Arduino Library Manager
-
-
 ********************************************************************************/
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_ILI9341.h>
 
+#ifdef ESP8266
+#define STMPE_CS 16
+#define TFT_CS   0
+#define TFT_DC   15
+#define SD_CS    2
+#endif
 #ifdef ESP32
 #define STMPE_CS 32
 #define TFT_CS   15
@@ -141,6 +173,42 @@ U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 
 #endif
+
+
+
+#ifdef  _320x480_TFT
+/********************************************************************************
+  GFX library available from Adafruit
+  This library is used for the 320x480 TFT
+    Available through Arduino Library Manager
+********************************************************************************/
+#include <SPI.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_HX8357.h>
+
+#ifdef ESP8266
+#define STMPE_CS 16
+#define TFT_CS   0
+#define TFT_DC   15
+#define SD_CS    2
+#endif
+#ifdef ESP32
+#define STMPE_CS 32
+#define TFT_CS   15
+#define TFT_DC   33
+#define SD_CS    14
+#endif
+
+#define TFT_RST -1
+// Use hardware SPI and the above for CS/DC
+Adafruit_HX8357 tft = Adafruit_HX8357(TFT_CS, TFT_DC, TFT_RST);
+
+#endif
+
+
+
+#define TFT_BLACK       0x0000  ///<   0,   0,   0
+#define TFT_WHITE       0xFFFF  ///< 255, 255, 255
 
 
 void setup() {
@@ -155,10 +223,10 @@ void setup() {
   u8g2.sendBuffer();                          // transfer internal memory to the display
 #endif
 
-#ifdef  _240x320_TFT
+#ifdef  _240x320_TFT | _320x480_TFT
   tft.begin();
-  tft.fillScreen(ILI9341_BLACK);
-  tft.setTextColor(ILI9341_WHITE);
+  tft.fillScreen(TFT_BLACK);
+  tft.setTextColor(TFT_WHITE);
   tft.setCursor(0, 32);
   tft.setTextSize(2);  //(30 pixels tall I think)
   tft.println("Generating QR Code");
@@ -180,16 +248,16 @@ void setup() {
   // qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "{\"a\":\"DE6os4N86ef9bba6kVGurqxmhpBHKctoxY\"}"); //dARK address
   //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "DE6os4N86ef9bba6kVGurqxmhpBHKctoxY");   //dARK address
   //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "ark:AePNZAAtWhLsGFLXtztGLAPnKm98VVC8tJ?amount=20.3");    //ARK address
-  
+
   //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "DFcWwEGwBaYCNb1wxGErGN1TJu8QdQYgCt?amount=0.3");    //dARK address 51 bytes.
   //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "dark:DFcWwEGwBaYCNb1wxGErGN1TJu8QdQYgCt?amount=0.3");    //dARK address 51 bytes.
- 
-  //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "AUjnVRstxXV4qP3wgKvBgv1yiApvbmcHhx?amount=0.3");    //jake address 51 bytes 
-  //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "AUjnVRstxXV4qP3wgKvBgv1yiApvbmcHhx");    //jake address 
-  //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "jake:AUjnVRstxXV4qP3wgKvBgv1yiApvbmcHhx?amount=0.3");    //jake address 51 bytes.
-   qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "ark:AUjnVRstxXV4qP3wgKvBgv1yiApvbmcHhx?amount=0.3");    //jake address 51 bytes.
 
-    
+  //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "AUjnVRstxXV4qP3wgKvBgv1yiApvbmcHhx?amount=0.3");    //jake address 51 bytes
+  //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "AUjnVRstxXV4qP3wgKvBgv1yiApvbmcHhx");    //jake address
+  //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "jake:AUjnVRstxXV4qP3wgKvBgv1yiApvbmcHhx?amount=0.3");    //jake address 51 bytes.
+  qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "ark:AUjnVRstxXV4qP3wgKvBgv1yiApvbmcHhx?amount=0.3");    //jake address 51 bytes.
+
+
   //  qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "hello pj");
   //qrcode_initText(&qrcode, qrcodeData, QRcode_Version, QRcode_ECC, "1BGJvqAuZvr23EixA65PEe5PMLAjVTeyMn");     //bitcoin address
 
@@ -232,7 +300,7 @@ void setup() {
 
 
 
-#ifdef  _240x320_TFT
+#ifdef  _240x320_TFT | _320x480_TFT
   tft.setCursor(0, 60);
   tft.setTextSize(1);  //(20 pixels tall I think)
   tft.println();
@@ -252,10 +320,10 @@ void setup() {
   }
 #endif
 
-#ifdef  _240x320_TFT
+#ifdef  _240x320_TFT | _320x480_TFT
   //--------------------------------------------
   //Turn on all pixels so screen has a white background
-  tft.fillScreen(ILI9341_WHITE);
+  tft.fillScreen(TFT_WHITE);
 #endif
 
   //--------------------------------------------
@@ -314,7 +382,7 @@ void setup() {
 
 
 
-#ifdef  _240x320_TFT
+#ifdef  _240x320_TFT |_320x480_TFT
   //this will put the QRcode on the top left corner
   uint8_t x0 = 20;
   uint8_t y0 =  20;   //
@@ -328,13 +396,29 @@ void setup() {
 
 #ifdef  _QR_doubleSize
         //uncomment to double the QRcode. Comment to display normal code size
-        tft.drawPixel(x0 + 2 * x,     y0 + 2 * y, ILI9341_WHITE);
-        tft.drawPixel(x0 + 2 * x + 1, y0 + 2 * y, ILI9341_WHITE);
-        tft.drawPixel(x0 + 2 * x,     y0 + 2 * y + 1, ILI9341_WHITE);
-        tft.drawPixel(x0 + 2 * x + 1, y0 + 2 * y + 1, ILI9341_WHITE);
-#else
-        //uncomment to display code in normal size.  Comment to double the QRcode
-        tft.drawPixel(x0 + x, y0 + y, ILI9341_WHITE);
+        tft.drawPixel(x0 + 2 * x,     y0 + 2 * y, TFT_WHITE);
+        tft.drawPixel(x0 + 2 * x + 1, y0 + 2 * y, TFT_WHITE);
+        tft.drawPixel(x0 + 2 * x,     y0 + 2 * y + 1, TFT_WHITE);
+        tft.drawPixel(x0 + 2 * x + 1, y0 + 2 * y + 1, TFT_WHITE);
+#endif    
+
+#ifdef  _QR_tripleSize
+        //uncomment to double the QRcode. Comment to display normal code size
+        tft.drawPixel(x0 + 3 * x,     y0 + 3 * y, TFT_WHITE);
+        tft.drawPixel(x0 + 3 * x + 1, y0 + 3 * y, TFT_WHITE);
+        tft.drawPixel(x0 + 3 * x + 2, y0 + 3 * y, TFT_WHITE);
+        
+        tft.drawPixel(x0 + 3 * x,     y0 + 3 * y + 1, TFT_WHITE);
+        tft.drawPixel(x0 + 3 * x + 1, y0 + 3 * y + 1, TFT_WHITE);
+        tft.drawPixel(x0 + 3 * x + 2, y0 + 3 * y + 1, TFT_WHITE);
+
+        tft.drawPixel(x0 + 3 * x,     y0 + 3 * y + 2, TFT_WHITE);
+        tft.drawPixel(x0 + 3 * x + 1, y0 + 3 * y + 2, TFT_WHITE);
+        tft.drawPixel(x0 + 3 * x + 2, y0 + 3 * y + 2, TFT_WHITE);        
+#endif  
+
+ #if !defined(_QR_doubleSize) && !defined(_QR_tripleSize)  
+        tft.drawPixel(x0 + x, y0 + y, TFT_WHITE);
 #endif
 
       } else {
@@ -342,14 +426,31 @@ void setup() {
 
 #ifdef  _QR_doubleSize
         //uncomment to double the QRcode. Comment to display normal code size
-        tft.drawPixel(x0 + 2 * x,     y0 + 2 * y, ILI9341_BLACK);
-        tft.drawPixel(x0 + 2 * x + 1, y0 + 2 * y, ILI9341_BLACK);
-        tft.drawPixel(x0 + 2 * x,     y0 + 2 * y + 1, ILI9341_BLACK);
-        tft.drawPixel(x0 + 2 * x + 1, y0 + 2 * y + 1, ILI9341_BLACK);
-#else
-        //uncomment to display code in normal size.  Comment to double the QRcode
-        tft.drawPixel(x0 + x, y0 + y, ILI9341_BLACK);
+        tft.drawPixel(x0 + 2 * x,     y0 + 2 * y, TFT_BLACK);
+        tft.drawPixel(x0 + 2 * x + 1, y0 + 2 * y, TFT_BLACK);
+        tft.drawPixel(x0 + 2 * x,     y0 + 2 * y + 1, TFT_BLACK);
+        tft.drawPixel(x0 + 2 * x + 1, y0 + 2 * y + 1, TFT_BLACK);
 #endif
+
+#ifdef  _QR_tripleSize
+        //uncomment to double the QRcode. Comment to display normal code size
+        tft.drawPixel(x0 + 3 * x,     y0 + 3 * y, TFT_BLACK);
+        tft.drawPixel(x0 + 3 * x + 1, y0 + 3 * y, TFT_BLACK);
+        tft.drawPixel(x0 + 3 * x + 2, y0 + 3 * y, TFT_BLACK);
+        
+        tft.drawPixel(x0 + 3 * x,     y0 + 3 * y + 1, TFT_BLACK);
+        tft.drawPixel(x0 + 3 * x + 1, y0 + 3 * y + 1, TFT_BLACK);
+        tft.drawPixel(x0 + 3 * x + 2, y0 + 3 * y + 1, TFT_BLACK);
+
+        tft.drawPixel(x0 + 3 * x,     y0 + 3 * y + 2, TFT_BLACK);
+        tft.drawPixel(x0 + 3 * x + 1, y0 + 3 * y + 2, TFT_BLACK);
+        tft.drawPixel(x0 + 3 * x + 2, y0 + 3 * y + 2, TFT_BLACK);        
+#endif
+        
+ #if !defined(_QR_doubleSize) && !defined(_QR_tripleSize)  
+        tft.drawPixel(x0 + x, y0 + y, TFT_BLACK);
+#endif
+
       }
 
     }
